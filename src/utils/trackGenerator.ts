@@ -2,17 +2,10 @@ export type Coordinate = [number, number];
 
 export interface Track {
   id: string;
+  label: string;
   path: Coordinate[];
 }
 
-/**
- * Menghasilkan satu data track palsu.
- * @param id - ID unik untuk track.
- * @param startCoord - Koordinat awal track.
- * @param numPoints - Jumlah titik dalam track.
- * @param variance - Seberapa "acak" atau "berkelok-kelok" jalurnya.
- * @returns Objek Track.
- */
 export const generateMockTrack = (
   id: string,
   startCoord: Coordinate = [-6.2, 106.8],
@@ -29,5 +22,7 @@ export const generateMockTrack = (
     path.push(lastCoord);
   }
 
-  return { id, path };
+  const label = `Track ${id.split('-')[1]}`;
+
+  return { id, label, path };
 };
