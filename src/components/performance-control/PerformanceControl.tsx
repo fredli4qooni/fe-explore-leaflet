@@ -23,7 +23,7 @@ const PerformanceControl: React.FC<PerformanceControlProps> = ({
         display: 'flex',
         flexDirection: 'column',
         gap: '4px',
-        zIndex: 1000, // Pastikan di atas peta
+        zIndex: 1000,
       }}
     >
       <h3 style={{ margin: '0 0 4px 0', padding: 0, fontSize: '14px' }}>
