@@ -1,21 +1,31 @@
+/**
+ * @file Manages the loading of PIXI assets.
+ * This approach pre-loads assets outside the React component lifecycle
+ * to avoid issues with React StrictMode and re-renders.
+ */
+
 import * as PIXI from 'pixi.js';
 import arrowIconUrl from '../assets/icons/arrow.svg';
 
-// Buat satu instance loader global
 const loader = PIXI.Loader.shared;
 
-// Promise yang akan resolve saat tekstur siap
+/**
+ * A promise that resolves with the loaded texture, ensuring it's loaded only once.
+ * @type {Promise<PIXI.Texture> | null}
+ */
 let texturePromise: Promise<PIXI.Texture> | null = null;
 
+/**
+ * Loads the arrow icon texture using PIXI.Loader.
+ * Caches the promise to prevent multiple loads across the application.
+ * @returns {Promise<PIXI.Texture>} A promise that resolves with the arrow icon's PIXI.Texture.
+ */
 export const getArrowTexture = (): Promise<PIXI.Texture> => {
-  // Jika promise sudah ada, kembalikan promise yang sama
   if (texturePromise) {
     return texturePromise;
   }
 
-  // Jika belum, buat promise baru untuk loading
   texturePromise = new Promise((resolve, reject) => {
-    // Cek cache dulu
     if (loader.resources['arrow']?.texture) {
       console.log("Texture found in cache.");
       resolve(loader.resources['arrow'].texture);

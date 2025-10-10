@@ -1,3 +1,8 @@
+/**
+ * @file The main view component that orchestrates the map, performance controls, and the PIXI overlay.
+ * It manages the state for the number of tracks and their animation.
+ */
+
 import { useRef, useMemo, useState, useEffect } from 'react';
 import { Icon } from 'leaflet';
 import type { LatLngExpression } from 'leaflet';
@@ -14,6 +19,11 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+/**
+ * Generates an initial set of mock tracks.
+ * @param {number} count - The number of tracks to generate.
+ * @returns {Track[]} An array of generated tracks.
+ */
 function generateInitialTracks(count: number) {
   console.log(`Generating ${count} initial mock tracks...`);
   const tracks = [];
@@ -30,6 +40,9 @@ function generateInitialTracks(count: number) {
   return tracks;
 }
 
+/**
+ * The main MapView component.
+ */
 const MapView = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [trackCount, setTrackCount] = useState(10);
@@ -44,10 +57,16 @@ const MapView = () => {
 
   const [tracks, setTracks] = useState(() => generateInitialTracks(trackCount));
 
+  /**
+   * Effect to regenerate all tracks when the track count changes.
+   */
   useEffect(() => {
     setTracks(generateInitialTracks(trackCount));
   }, [trackCount]);
 
+  /**
+   * Effect to run the animation loop, updating track positions every second.
+   */
   useEffect(() => {
     const interval = setInterval(() => {
       setTracks(currentTracks => {

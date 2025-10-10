@@ -1,3 +1,8 @@
+/**
+ * @file The core custom hook that manages the Leaflet.PixiOverlay.
+ * It handles asset loading, PIXI object creation, and the main render loop.
+ */
+
 import { useEffect, useMemo, useState, useRef } from 'react';
 import * as L from 'leaflet';
 import * as PIXI from 'pixi.js';
@@ -6,6 +11,9 @@ import { Track } from '../utils/trackGenerator';
 import Stats from 'stats.js';
 import { getArrowTexture } from '../lib/pixiAssets';
 
+/**
+ * Defines the structure for all PIXI objects associated with a single track.
+ */
 interface TrackVisuals {
   container: PIXI.Container;
   line: PIXI.Graphics;
@@ -13,14 +21,27 @@ interface TrackVisuals {
   labelContainer: PIXI.Container;
 }
 
+/**
+ * The core custom hook for managing the Leaflet.PixiOverlay.
+ * @param {L.Map | null} map - The Leaflet map instance.
+ * @param {Track[]} tracks - An array of track data to be rendered.
+ * @param {Stats | null} stats - The stats.js instance for performance monitoring.
+ */
 export const usePixiOverlay = (map: L.Map | null, tracks: Track[], stats: Stats | null) => {
   const [iconTexture, setIconTexture] = useState<PIXI.Texture | null>(null);
   const pixiOverlayRef = useRef<any>(null);
 
+  /**
+   * Effect to fetch the pre-loaded icon texture once the component mounts.
+   */
   useEffect(() => {
     getArrowTexture().then(setIconTexture);
   }, []);
 
+  /**
+   * Memoizes the creation of PIXI visual objects.
+   * This expensive operation runs only when the number of tracks or the icon texture changes.
+   */
   const trackVisuals = useMemo(() => {
     if (!iconTexture) return null;
 
@@ -67,6 +88,9 @@ export const usePixiOverlay = (map: L.Map | null, tracks: Track[], stats: Stats 
     return visualsMap;
   }, [tracks, iconTexture]);
 
+  /**
+   * The main effect for setting up the overlay and the continuous render loop.
+   */
   useEffect(() => {
     if (!map || !stats || !trackVisuals) return;
 
