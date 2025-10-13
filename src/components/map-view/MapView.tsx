@@ -11,6 +11,7 @@ import { usePixiOverlay } from '../../hooks/usePixiOverlay';
 import { usePerformanceStats } from '../../hooks/usePerformanceStats';
 import { generateMockTrack, Coordinate } from '../../utils/trackGenerator';
 import PerformanceControl from '../performance-control/PerformanceControl';
+import { usePerformanceRecorder } from '../../hooks/usePerformanceRecorder';
 
 delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
@@ -27,15 +28,15 @@ Icon.Default.mergeOptions({
 function generateInitialTracks(count: number) {
   console.log(`Generating ${count} initial mock tracks...`);
   const tracks = [];
-  const startLat = -6.2;
-  const startLng = 106.8;
+  const startLat = -5.010664563360759;
+  const startLng = 108.04721603615837;
 
   for (let i = 0; i < count; i++) {
     const randomStart: Coordinate = [
       startLat + (Math.random() - 0.5) * 0.1,
       startLng + (Math.random() - 0.5) * 0.1,
     ];
-    tracks.push(generateMockTrack(`track-${i}`, randomStart, 2));
+    tracks.push(generateMockTrack(`track-${i + 1}`, randomStart, 2));
   }
   return tracks;
 }
@@ -49,7 +50,7 @@ const MapView = () => {
 
   const mapOptions = useMemo(
     () => ({
-      center: [-6.2088, 106.8456] as LatLngExpression,
+      center: [-5.010664563360759, 108.04721603615837] as LatLngExpression,
       zoom: 13,
     }),
     []
@@ -94,11 +95,19 @@ const MapView = () => {
   const map = useMap(mapContainerRef, mapOptions);
   usePixiOverlay(map, tracks, stats);
 
+  const { isRecording, startRecording, stopRecording, results, clearResults } = usePerformanceRecorder(stats);
+
+  
   return (
     <>
       <PerformanceControl
         currentTrackCount={trackCount}
         onTrackCountChange={setTrackCount}
+        isRecording={isRecording}
+        startRecording={startRecording}
+        stopRecording={stopRecording}
+        results={results}
+        clearResults={clearResults}
       />
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
     </>
