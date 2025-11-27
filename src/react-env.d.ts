@@ -1,6 +1,11 @@
 // CSS modules
 type CSSModuleClasses = { readonly [key: string]: string };
 
+declare module '*.svg' {
+  const content: string;
+  export default content;
+}
+
 declare module "*.module.css" {
 	const classes: CSSModuleClasses;
 	export default classes;

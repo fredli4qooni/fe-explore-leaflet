@@ -8,8 +8,17 @@
     "preview": "rspack preview"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/leaflet": "^1.9.20",
+    "leaflet": "^1.9.4",
+    "leaflet-pixi-overlay": "^1.9.4",
+    "pixi.js": "6.5.10",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.2.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "stats.js": "^0.17.0",
+    "tailwindcss": "^4.1.14"
   },
   "devDependencies": {
     "@rspack/cli": "^1.5.8",
@@ -17,6 +26,7 @@
     "@rspack/plugin-react-refresh": "^1.5.1",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@types/stats.js": "^0.17.4",
     "react-refresh": "^0.17.0",
     "typescript": "^5.9.2"
   }

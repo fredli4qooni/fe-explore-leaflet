@@ -1,0 +1,117 @@
+/**
+ * @file The main view component that orchestrates the map, performance controls, and the PIXI overlay.
+ * It manages the state for the number of tracks and their animation.
+ */
+
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { Icon } from 'leaflet';
+import type { LatLngExpression } from 'leaflet';
+import { useMap } from '../../hooks/useMap';
+import { usePixiOverlay } from '../../hooks/usePixiOverlay';
+import { usePerformanceStats } from '../../hooks/usePerformanceStats';
+import { generateMockTrack, Coordinate } from '../../utils/trackGenerator';
+import PerformanceControl from '../performance-control/PerformanceControl';
+import { usePerformanceRecorder } from '../../hooks/usePerformanceRecorder';
+
+delete (Icon.Default.prototype as any)._getIconUrl;
+Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+/**
+ * Generates an initial set of mock tracks.
+ * @param {number} count - The number of tracks to generate.
+ * @returns {Track[]} An array of generated tracks.
+ */
+function generateInitialTracks(count: number) {
+  console.log(`Generating ${count} initial mock tracks...`);
+  const tracks = [];
+  const startLat = -5.010664563360759;
+  const startLng = 108.04721603615837;
+
+  for (let i = 0; i < count; i++) {
+    const randomStart: Coordinate = [
+      startLat + (Math.random() - 0.5) * 0.1,
+      startLng + (Math.random() - 0.5) * 0.1,
+    ];
+    tracks.push(generateMockTrack(`track-${i + 1}`, randomStart, 2));
+  }
+  return tracks;
+}
+
+/**
+ * The main MapView component.
+ */
+const MapView = () => {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [trackCount, setTrackCount] = useState(10);
+
+  const mapOptions = useMemo(
+    () => ({
+      center: [-5.010664563360759, 108.04721603615837] as LatLngExpression,
+      zoom: 13,
+    }),
+    []
+  );
+
+  const [tracks, setTracks] = useState(() => generateInitialTracks(trackCount));
+
+  /**
+   * Effect to regenerate all tracks when the track count changes.
+   */
+  useEffect(() => {
+    setTracks(generateInitialTracks(trackCount));
+  }, [trackCount]);
+
+  /**
+   * Effect to run the animation loop, updating track positions every second.
+   */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTracks(currentTracks => {
+        return currentTracks.map(track => {
+          const lastCoord = track.path[track.path.length - 1];
+          const variance = 0.0005; 
+          const newLat = lastCoord[0] + (Math.random() - 0.5) * variance;
+          const newLng = lastCoord[1] + (Math.random() - 0.5) * variance;
+          
+          const newPath = [...track.path, [newLat, newLng] as Coordinate];
+          
+          if (newPath.length > 100) {
+            newPath.shift();
+          }
+
+          return { ...track, path: newPath };
+        });
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const stats = usePerformanceStats();
+  const map = useMap(mapContainerRef, mapOptions);
+  usePixiOverlay(map, tracks, stats);
+
+  const { isRecording, startRecording, stopRecording, results, clearResults } = usePerformanceRecorder(stats);
+
+  
+  return (
+    <>
+      <PerformanceControl
+        currentTrackCount={trackCount}
+        onTrackCountChange={setTrackCount}
+        isRecording={isRecording}
+        startRecording={startRecording}
+        stopRecording={stopRecording}
+        results={results}
+        clearResults={clearResults}
+      />
+      <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+    </>
+  );
+};
+
+export default MapView;
